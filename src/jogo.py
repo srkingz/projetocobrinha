@@ -51,7 +51,7 @@ def executar_jogo():
     # 2. Criando a estrutura de Sprites usando Dicionários
     jogador = {
         "imagem": player_image,
-        "rect": player_image.get_rect(topleft=(100, 100))
+        "rect": player_image.get_rect(topleft=(350, 250))
     }
 
     gema = {
@@ -59,10 +59,6 @@ def executar_jogo():
         "rect": gem_image.get_rect(topleft=(500, 300))
     }
     
-    inimigo = {
-        "imagem": bat_image,
-        "rect": bat_image.get_rect(topleft=(200, 500))
-    }
 
     segmentos = [] 
 
@@ -71,7 +67,9 @@ def executar_jogo():
     vidas = 1
     recorde = carregar_recorde(CAMINHO_RECORDE)
     historico = []
-
+    
+    direcao_x = 0
+    direcao_y = 0
     # Loop principal: processa entrada, atualiza estado e renderiza a cena.
     while rodando:
         relogio.tick(FPS)
@@ -79,32 +77,53 @@ def executar_jogo():
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
-
-        teclas = pygame.key.get_pressed()
+        jogador["rect"].x += direcao_x * velocidade
+        jogador["rect"].y += direcao_y * velocidade
+        
 
         historico.append((jogador["rect"].x, jogador["rect"].y))
         if len(historico) > 1000:
             historico.pop(0)
-
         # Movimentação alterando direto os eixos X e Y do retângulo do jogador
-        if teclas[pygame.K_LEFT]:
-            jogador["rect"].x -= velocidade
-        elif teclas[pygame.K_RIGHT]:
-            jogador["rect"].x += velocidade
-        elif teclas[pygame.K_UP]:
-            jogador["rect"].y -= velocidade
-        elif teclas[pygame.K_DOWN]:
-            jogador["rect"].y += velocidade
+        if evento.type == pygame.KEYDOWN:
+
+            if evento.key == pygame.K_LEFT and direcao_x != 1:
+                direcao_x = -1
+                direcao_y = 0
+
+            elif evento.key == pygame.K_RIGHT and direcao_x != -1:
+                direcao_x = 1
+                direcao_y = 0
+
+            elif evento.key == pygame.K_UP and direcao_y != 1:
+                direcao_x = 0
+                direcao_y = -1
+
+            elif evento.key == pygame.K_DOWN and direcao_y != -1:
+                direcao_x = 0
+                direcao_y = 1
 
         # Limitando o jogador dentro das bordas da tela usando as propriedades do Rect
-        jogador["rect"].x = limitar_valor(jogador["rect"].x, 0, LARGURA_TELA - jogador["rect"].width)
-        jogador["rect"].y = limitar_valor(jogador["rect"].y, 0, ALTURA_TELA - jogador["rect"].height)
+        if (
+            jogador["rect"].left < 0
+            or jogador["rect"].right > LARGURA_TELA
+            or jogador["rect"].top < 0
+            or jogador["rect"].bottom > ALTURA_TELA
+        ):
+            vidas = tomar_dano(vidas, 1)
 
         espaco = 30
         for i, seg in enumerate(segmentos):
             indice = len(historico) - 1 - (espaco * (i + 1))
             if indice >= 0:
                 seg["rect"].topleft = historico[indice]
+        for seg in segmentos[2:]:
+            if verificar_colisao(
+                jogador["rect"],
+                seg["rect"]
+            ):
+                vidas = tomar_dano(vidas, 1)
+                break
 
         # Verificação de colisão com a Gema (antigo 'item')
         if verificar_colisao(jogador["rect"], gema["rect"]):
@@ -119,19 +138,7 @@ def executar_jogo():
             }
             segmentos.append(novo_segmento)
 
-        # Verificação de colisão com o Inimigo
-        if verificar_colisao(jogador["rect"], inimigo["rect"]):
-            vidas = tomar_dano(vidas, 1)
-
-            # Afasta o inimigo ao colidir
-            inimigo["rect"].x += 80
-            inimigo["rect"].y += 50
-
-            if inimigo["rect"].x > LARGURA_TELA - inimigo["rect"].width:
-                inimigo["rect"].x = 50
-            if inimigo["rect"].y > ALTURA_TELA - inimigo["rect"].height:
-                inimigo["rect"].y = 50
-
+        
         # Regras de fim de jogo e recorde
         if jogador_perdeu(vidas):
             rodando = False
@@ -148,7 +155,6 @@ def executar_jogo():
 
         # Desenhando os elementos na tela passando a imagem e o rect de cada dicionário
         tela.blit(gema["imagem"], gema["rect"])
-        tela.blit(inimigo["imagem"], inimigo["rect"])
         for seg in segmentos: 
             tela.blit(seg["imagem"], seg["rect"])
 
