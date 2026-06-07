@@ -8,6 +8,7 @@ from src.config import (
     CINZA,
     CAMINHO_RECORDE,
     CAMINHO_SPRITES,
+    VERDE
 )
 
 from src.funcoes import (
@@ -39,7 +40,7 @@ def executar_jogo():
 
 
     # Jogador: usando tamanho 110x110 para capturar o quadrado perfeitamente
-    player_image = pegar_sprite(CAMINHO_SPRITES, x=110, y=120, width=190, height=190, scale=0.5)
+    player_image = pegar_sprite(CAMINHO_SPRITES, x=900, y=300, width=190, height=190, scale=0.5)
 
     # Gema pequena: usando tamanho 64x64
     gem_image    = pegar_sprite(CAMINHO_SPRITES, x=900, y=690, width=200, height=200, scale=0.5)
@@ -67,7 +68,10 @@ def executar_jogo():
     pontos = 0
     vidas = 3
     recorde = carregar_recorde(CAMINHO_RECORDE)
+    direcao_x = 0
+    direcao_y = 0   
 
+    tamanho_bloco = 20
     # Loop principal: processa entrada, atualiza estado e renderiza a cena.
     while rodando:
         relogio.tick(FPS)
@@ -76,22 +80,38 @@ def executar_jogo():
             if evento.type == pygame.QUIT:
                 rodando = False
 
-        teclas = pygame.key.get_pressed()
+            if evento.type == pygame.KEYDOWN:
 
-        # Movimentação alterando direto os eixos X e Y do retângulo do jogador
-        if teclas[pygame.K_LEFT]:
-            jogador["rect"].x -= velocidade
-        if teclas[pygame.K_RIGHT]:
-            jogador["rect"].x += velocidade
-        if teclas[pygame.K_UP]:
-            jogador["rect"].y -= velocidade
-        if teclas[pygame.K_DOWN]:
-            jogador["rect"].y += velocidade
+                if evento.key == pygame.K_UP and direcao_y != 1:
+                    direcao_x = 0
+                    direcao_y = -1
 
-        # Limitando o jogador dentro das bordas da tela usando as propriedades do Rect
-        jogador["rect"].x = limitar_valor(jogador["rect"].x, 0, LARGURA_TELA - jogador["rect"].width)
-        jogador["rect"].y = limitar_valor(jogador["rect"].y, 0, ALTURA_TELA - jogador["rect"].height)
+                elif evento.key == pygame.K_DOWN and direcao_y != -1:
+                    direcao_x = 0
+                    direcao_y = 1
 
+                elif evento.key == pygame.K_LEFT and direcao_x != 1:
+                    direcao_x = -1
+                    direcao_y = 0
+
+                elif evento.key == pygame.K_RIGHT and direcao_x != -1:
+                    direcao_x = 1
+                    direcao_y = 0
+        jogador["rect"].x = limitar_valor(
+            jogador["rect"].x,
+            0,
+            LARGURA_TELA - jogador["rect"].width
+        )
+
+        jogador["rect"].y = limitar_valor(
+            jogador["rect"].y,
+            0,
+            ALTURA_TELA - jogador["rect"].height
+        )
+
+        jogador["rect"].x += direcao_x * tamanho_bloco
+        jogador["rect"].y += direcao_y * tamanho_bloco
+        
         # Verificação de colisão com a Gema (antigo 'item')
         if verificar_colisao(jogador["rect"], gema["rect"]):
             pontos = calcular_pontos(pontos, 10)
@@ -131,7 +151,7 @@ def executar_jogo():
             f"{TITULO_JOGO} | Pontos: {pontos} | Recorde: {recorde} | Vidas: {vidas}"
         )
 
-        tela.fill(CINZA)
+        tela.fill(VERDE)
 
         # Desenhando os elementos na tela passando a imagem e o rect de cada dicionário
         tela.blit(gema["imagem"], gema["rect"])
