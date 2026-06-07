@@ -6,10 +6,10 @@ Este repositório é um template para os grupos da disciplina. A proposta é com
 
 ## Integrantes do grupo
 
-- Nome do integrante 1
+- Gabriel Henrique de Souza Rodrigues
 - Gabriel Mota Valério
-- Nome do integrante 3
-- Nome do integrante 4
+- Pedro Afonso Marquetotti
+- Isaque Eduardo Gonçalves de Paiva
 
 ## Estrutura do projeto
 
