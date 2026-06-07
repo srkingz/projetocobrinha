@@ -1,4 +1,5 @@
 import pygame
+import random
 
 from src.config import (
     LARGURA_TELA,
@@ -62,12 +63,14 @@ def executar_jogo():
         "imagem": bat_image,
         "rect": bat_image.get_rect(topleft=(200, 500))
     }
-    segmentos = [] #Lista que guarda os personagens da fila
+
+    segmentos = [] 
 
     velocidade = 5
     pontos = 0
-    vidas = 3
+    vidas = 1
     recorde = carregar_recorde(CAMINHO_RECORDE)
+    historico = []
 
     # Loop principal: processa entrada, atualiza estado e renderiza a cena.
     while rodando:
@@ -79,7 +82,9 @@ def executar_jogo():
 
         teclas = pygame.key.get_pressed()
 
-        posicao_anterior = jogador["rect"].copy()  #Salva onde o jogador estava
+        historico.append((jogador["rect"].x, jogador["rect"].y))
+        if len(historico) > 1000:
+            historico.pop(0)
 
         # Movimentação alterando direto os eixos X e Y do retângulo do jogador
         if teclas[pygame.K_LEFT]:
@@ -95,34 +100,25 @@ def executar_jogo():
         jogador["rect"].x = limitar_valor(jogador["rect"].x, 0, LARGURA_TELA - jogador["rect"].width)
         jogador["rect"].y = limitar_valor(jogador["rect"].y, 0, ALTURA_TELA - jogador["rect"].height)
 
-        #Move cada segmento para a posição do anterior
-        for i in range(len(segmentos)):
-            if i == 0:
-                segmentos[i]["rect"].topleft = posicao_anterior.topleft
-            else:
-                segmentos[i]["rect"].topleft = segmentos[i - 1]["rect"].topleft
-
+        espaco = 30
+        for i, seg in enumerate(segmentos):
+            indice = len(historico) - 1 - (espaco * (i + 1))
+            if indice >= 0:
+                seg["rect"].topleft = historico[indice]
 
         # Verificação de colisão com a Gema (antigo 'item')
         if verificar_colisao(jogador["rect"], gema["rect"]):
             pontos = calcular_pontos(pontos, 10)
 
-            # Move a gema de lugar ao coletar
-            gema["rect"].x += 80
-            gema["rect"].y += 50
+            gema["rect"].x = random.randint(0, LARGURA_TELA - gema["rect"].width)
+            gema["rect"].y = random.randint(0, ALTURA_TELA - gema["rect"].height)
 
-            # Se a gema sair da tela, volta para uma posição segura
-            if gema["rect"].x > LARGURA_TELA - gema["rect"].width:
-                gema["rect"].x = 50
-            if gema["rect"].y > ALTURA_TELA - gema["rect"].height:
-                gema["rect"].y = 50
-
-            #Cria um novo personagem e adiciona na fila
             novo_segmento = {
                 "imagem": player_image,
                 "rect": player_image.get_rect(topleft=(-200, -200))
             }
             segmentos.append(novo_segmento)
+
         # Verificação de colisão com o Inimigo
         if verificar_colisao(jogador["rect"], inimigo["rect"]):
             vidas = tomar_dano(vidas, 1)
@@ -153,11 +149,10 @@ def executar_jogo():
         # Desenhando os elementos na tela passando a imagem e o rect de cada dicionário
         tela.blit(gema["imagem"], gema["rect"])
         tela.blit(inimigo["imagem"], inimigo["rect"])
-        #Desenha cada segmento da fila
-        for seg in segmentos:                          
-            tela.blit(seg["imagem"], seg["rect"])      
-        tela.blit(jogador["imagem"], jogador["rect"])
+        for seg in segmentos: 
+            tela.blit(seg["imagem"], seg["rect"])
 
+        tela.blit(jogador["imagem"], jogador["rect"])
         pygame.display.flip()
 
     pygame.quit()
