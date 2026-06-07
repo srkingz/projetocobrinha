@@ -11,7 +11,7 @@ Cobrinha
 ## 2. Integrantes do grupo
 
 - Nome 1: A preencher
-- Nome 2: Gabriel Mota Valério
+- Nome 2: A preencher
 - Nome 3: A preencher
 - Nome 4: A preencher
 
