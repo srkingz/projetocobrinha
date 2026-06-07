@@ -62,6 +62,7 @@ def executar_jogo():
         "imagem": bat_image,
         "rect": bat_image.get_rect(topleft=(200, 500))
     }
+    segmentos = [] #Lista que guarda os personagens da fila
 
     velocidade = 5
     pontos = 0
@@ -78,19 +79,29 @@ def executar_jogo():
 
         teclas = pygame.key.get_pressed()
 
+        posicao_anterior = jogador["rect"].copy()  #Salva onde o jogador estava
+
         # Movimentação alterando direto os eixos X e Y do retângulo do jogador
         if teclas[pygame.K_LEFT]:
             jogador["rect"].x -= velocidade
-        if teclas[pygame.K_RIGHT]:
+        elif teclas[pygame.K_RIGHT]:
             jogador["rect"].x += velocidade
-        if teclas[pygame.K_UP]:
+        elif teclas[pygame.K_UP]:
             jogador["rect"].y -= velocidade
-        if teclas[pygame.K_DOWN]:
+        elif teclas[pygame.K_DOWN]:
             jogador["rect"].y += velocidade
 
         # Limitando o jogador dentro das bordas da tela usando as propriedades do Rect
         jogador["rect"].x = limitar_valor(jogador["rect"].x, 0, LARGURA_TELA - jogador["rect"].width)
         jogador["rect"].y = limitar_valor(jogador["rect"].y, 0, ALTURA_TELA - jogador["rect"].height)
+
+        #Move cada segmento para a posição do anterior
+        for i in range(len(segmentos)):
+            if i == 0:
+                segmentos[i]["rect"].topleft = posicao_anterior.topleft
+            else:
+                segmentos[i]["rect"].topleft = segmentos[i - 1]["rect"].topleft
+
 
         # Verificação de colisão com a Gema (antigo 'item')
         if verificar_colisao(jogador["rect"], gema["rect"]):
@@ -106,6 +117,12 @@ def executar_jogo():
             if gema["rect"].y > ALTURA_TELA - gema["rect"].height:
                 gema["rect"].y = 50
 
+            #Cria um novo personagem e adiciona na fila
+            novo_segmento = {
+                "imagem": player_image,
+                "rect": player_image.get_rect(topleft=(-200, -200))
+            }
+            segmentos.append(novo_segmento)
         # Verificação de colisão com o Inimigo
         if verificar_colisao(jogador["rect"], inimigo["rect"]):
             vidas = tomar_dano(vidas, 1)
@@ -136,6 +153,9 @@ def executar_jogo():
         # Desenhando os elementos na tela passando a imagem e o rect de cada dicionário
         tela.blit(gema["imagem"], gema["rect"])
         tela.blit(inimigo["imagem"], inimigo["rect"])
+        #Desenha cada segmento da fila
+        for seg in segmentos:                          
+            tela.blit(seg["imagem"], seg["rect"])      
         tela.blit(jogador["imagem"], jogador["rect"])
 
         pygame.display.flip()
