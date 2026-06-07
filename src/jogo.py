@@ -50,19 +50,24 @@ def criar_sprites(player_image, gem_image, bat_image):
     return jogador, gema, inimigo
 
 
-def mover_jogador(jogador, teclas, velocidade):
-    """Move o jogador com base nas teclas pressionadas."""
+def mover_jogador(jogador, teclas, velocidade, direcao):
+    """Move o jogador continuamente na última direção pressionada."""
     if teclas[pygame.K_LEFT]:
-        jogador["rect"].x -= velocidade
+        direcao = (-velocidade, 0)
     elif teclas[pygame.K_RIGHT]:
-        jogador["rect"].x += velocidade
+        direcao = (velocidade, 0)
     elif teclas[pygame.K_UP]:
-        jogador["rect"].y -= velocidade
+        direcao = (0, -velocidade)
     elif teclas[pygame.K_DOWN]:
-        jogador["rect"].y += velocidade
+        direcao = (0, velocidade)
+
+    jogador["rect"].x += direcao[0]
+    jogador["rect"].y += direcao[1]
 
     jogador["rect"].x = limitar_valor(jogador["rect"].x, 0, LARGURA_TELA - jogador["rect"].width)
     jogador["rect"].y = limitar_valor(jogador["rect"].y, 0, ALTURA_TELA - jogador["rect"].height)
+
+    return direcao
 
 
 def atualizar_segmentos(segmentos, historico):
@@ -107,6 +112,21 @@ def verificar_colisao_inimigo(jogador, inimigo, vidas):
     return vidas
 
 
+def verificar_colisao_segmentos_e_parede(jogador, segmentos, vidas):
+    """Verifica colisão do jogador com os próprios segmentos e com as paredes."""
+    if (jogador["rect"].x <= 0 or
+        jogador["rect"].x >= LARGURA_TELA - jogador["rect"].width or
+        jogador["rect"].y <= 0 or
+        jogador["rect"].y >= ALTURA_TELA - jogador["rect"].height):
+        vidas = tomar_dano(vidas, 1)
+
+    for seg in segmentos[3:]:
+        if verificar_colisao(jogador["rect"], seg["rect"]):
+            vidas = tomar_dano(vidas, 1)
+
+    return vidas
+
+
 def desenhar_tela(tela, gema, inimigo, segmentos, jogador):
     """Desenha todos os elementos na tela."""
     tela.fill(CINZA)
@@ -137,6 +157,7 @@ def executar_jogo():
     pontos = 0
     vidas = 1
     recorde = carregar_recorde(CAMINHO_RECORDE)
+    direcao = (0, 0)
 
     while rodando:
         relogio.tick(FPS)
@@ -151,11 +172,12 @@ def executar_jogo():
         if len(historico) > 500:
             historico.pop(0)
 
-        mover_jogador(jogador, teclas, velocidade)
+        direcao = mover_jogador(jogador, teclas, velocidade, direcao)
         atualizar_segmentos(segmentos, historico)
 
         pontos = verificar_colisao_gema(jogador, gema, segmentos, pontos, player_image)
         vidas = verificar_colisao_inimigo(jogador, inimigo, vidas)
+        vidas = verificar_colisao_segmentos_e_parede(jogador, segmentos, vidas)
 
         if jogador_perdeu(vidas):
             rodando = False
