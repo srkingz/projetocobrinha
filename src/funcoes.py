@@ -1,27 +1,16 @@
-def calcular_pontos(pontos_atual, pontos_ganhos):
-    """Soma os pontos ganhos à pontuação atual."""
-    return pontos_atual + pontos_ganhos
+def mover_posicao(posicao, direcao):
+    """Move uma posicao usando a direcao informada."""
+    x, y = posicao
+    direcao_x, direcao_y = direcao
+    return (x + direcao_x, y + direcao_y)
 
 
-def tomar_dano(vida_atual, dano):
-    """Reduz a vida atual com base no dano recebido."""
-    return vida_atual - dano
+def manter_na_tela(posicao, largura_tela, altura_tela):
+    """Faz a posicao voltar pelo outro lado quando sai da tela."""
+    x, y = posicao
+    return (x % largura_tela, y % altura_tela)
 
 
-def jogador_perdeu(vidas):
-    """Indica se o jogador ficou sem vidas."""
-    return vidas <= 0
-
-
-def limitar_valor(valor, minimo, maximo):
-    """Mantém um valor dentro do intervalo [minimo, maximo]."""
-    if valor < minimo:
-        return minimo
-    if valor > maximo:
-        return maximo
-    return valor
-
-
-def verificar_colisao(retangulo_1, retangulo_2):
-    """Verifica sobreposição entre dois retângulos do Pygame."""
-    return retangulo_1.colliderect(retangulo_2)
+def posicoes_iguais(posicao_1, posicao_2):
+    """Verifica se duas posicoes sao iguais."""
+    return posicao_1 == posicao_2
