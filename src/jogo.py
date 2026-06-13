@@ -4,23 +4,41 @@ import pygame
 
 from src.config import (
     ALTURA_TELA,
+    BRANCO,
+    CAMINHO_RECORDE,
     CINZA,
     FPS,
     LARGURA_TELA,
+    META_COMIDAS,
+    PONTOS_POR_COMIDA,
     PRETO,
     TAMANHO_BLOCO,
     TITULO_JOGO,
     VERDE,
     VERMELHO,
 )
-from src.funcoes import manter_na_tela, mover_posicao, posicoes_iguais
+from src.dados import carregar_recorde, salvar_recorde
+from src.funcoes import (
+    calcular_pontuacao,
+    direcao_oposta,
+    mover_cobrinha,
+    mover_posicao,
+    posicoes_iguais,
+    verificar_derrota_corpo,
+    verificar_derrota_parede,
+    verificar_vitoria,
+)
 
 
 def criar_cobrinha():
     """Cria a cobrinha no centro da tela."""
     x = (LARGURA_TELA // 2 // TAMANHO_BLOCO) * TAMANHO_BLOCO
     y = (ALTURA_TELA // 2 // TAMANHO_BLOCO) * TAMANHO_BLOCO
-    return (x, y)
+    return [
+        (x, y),
+        (x - TAMANHO_BLOCO, y),
+        (x - TAMANHO_BLOCO * 2, y),
+    ]
 
 
 def sortear_comida(cobrinha):
@@ -33,9 +51,8 @@ def sortear_comida(cobrinha):
         y = random.randrange(linhas) * TAMANHO_BLOCO
         comida = (x, y)
 
-        if comida != cobrinha:
+        if comida not in cobrinha:
             return comida
-
 
 def direcao_por_tecla(tecla, direcao_atual):
     """Retorna a direcao escolhida pelo jogador."""
@@ -51,15 +68,18 @@ def direcao_por_tecla(tecla, direcao_atual):
     return direcao_atual
 
 
-def atualizar_jogo(cobrinha, comida, direcao):
+def atualizar_jogo(cobrinha, comida, direcao, comidas_coletadas):
     """Move a cobrinha e atualiza a comida quando houver colisao."""
-    cobrinha = mover_posicao(cobrinha, direcao)
-    cobrinha = manter_na_tela(cobrinha, LARGURA_TELA, ALTURA_TELA)
+    nova_cabeca = mover_posicao(cobrinha[0], direcao)
 
-    if posicoes_iguais(cobrinha, comida):
+    if posicoes_iguais(nova_cabeca, comida):
+        comidas_coletadas += 1
+        cobrinha = mover_cobrinha(cobrinha, direcao, crescer=True)
         comida = sortear_comida(cobrinha)
+    else:
+        cobrinha = mover_cobrinha(cobrinha, direcao)
 
-    return cobrinha, comida
+    return cobrinha, comida, comidas_coletadas
 
 
 def desenhar_bloco(tela, posicao, cor):
@@ -69,11 +89,36 @@ def desenhar_bloco(tela, posicao, cor):
     pygame.draw.rect(tela, PRETO, bloco, 1)
 
 
-def desenhar_tela(tela, cobrinha, comida):
+def desenhar_texto(tela, fonte, texto, cor, x, y):
+    """Desenha um texto na tela."""
+    superficie = fonte.render(texto, True, cor)
+    tela.blit(superficie, (x, y))
+
+
+def desenhar_tela(
+    tela,
+    fonte,
+    cobrinha,
+    comida,
+    comidas_coletadas,
+    pontuacao,
+    recorde,
+    resultado,
+):
     """Desenha os elementos do prototipo."""
     tela.fill(CINZA)
     desenhar_bloco(tela, comida, VERMELHO)
-    desenhar_bloco(tela, cobrinha, VERDE)
+    for parte in cobrinha:
+        desenhar_bloco(tela, parte, VERDE)
+    desenhar_texto(tela, fonte, f"Comidas: {comidas_coletadas}/{META_COMIDAS}", PRETO, 10, 10)
+    desenhar_texto(tela, fonte, f"Pontos: {pontuacao}", PRETO, 10, 40)
+    desenhar_texto(tela, fonte, f"Recorde: {recorde}", PRETO, 10, 70)
+
+    if resultado == "vitoria":
+        desenhar_texto(tela, fonte, "Vitoria! Voce comeu 30 comidas.", BRANCO, 250, 280)
+    elif resultado == "derrota":
+        desenhar_texto(tela, fonte, "Derrota! A cobrinha bateu.", BRANCO, 280, 280)
+
     pygame.display.flip()
 
 
@@ -83,10 +128,14 @@ def executar_jogo():
     tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
     pygame.display.set_caption(TITULO_JOGO)
 
+    fonte = pygame.font.SysFont("arial", 24)
     relogio = pygame.time.Clock()
     cobrinha = criar_cobrinha()
     comida = sortear_comida(cobrinha)
     direcao = (TAMANHO_BLOCO, 0)
+    comidas_coletadas = 0
+    recorde = carregar_recorde(CAMINHO_RECORDE)
+    resultado = "jogando"
     rodando = True
 
     while rodando:
@@ -98,10 +147,41 @@ def executar_jogo():
             elif evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_ESCAPE:
                     rodando = False
-                else:
-                    direcao = direcao_por_tecla(evento.key, direcao)
+                elif resultado == "jogando":
+                    nova_direcao = direcao_por_tecla(evento.key, direcao)
+                    if not direcao_oposta(direcao, nova_direcao):
+                        direcao = nova_direcao
 
-        cobrinha, comida = atualizar_jogo(cobrinha, comida, direcao)
-        desenhar_tela(tela, cobrinha, comida)
+        if resultado == "jogando":
+            cobrinha, comida, comidas_coletadas = atualizar_jogo(
+                cobrinha,
+                comida,
+                direcao,
+                comidas_coletadas,
+            )
+            pontuacao = calcular_pontuacao(comidas_coletadas, PONTOS_POR_COMIDA)
+
+            if pontuacao > recorde:
+                recorde = pontuacao
+                salvar_recorde(CAMINHO_RECORDE, recorde)
+
+            if verificar_derrota_parede(cobrinha[0], LARGURA_TELA, ALTURA_TELA):
+                resultado = "derrota"
+            elif verificar_derrota_corpo(cobrinha):
+                resultado = "derrota"
+            elif verificar_vitoria(comidas_coletadas, META_COMIDAS):
+                resultado = "vitoria"
+
+        pontuacao = calcular_pontuacao(comidas_coletadas, PONTOS_POR_COMIDA)
+        desenhar_tela(
+            tela,
+            fonte,
+            cobrinha,
+            comida,
+            comidas_coletadas,
+            pontuacao,
+            recorde,
+            resultado,
+        )
 
     pygame.quit()

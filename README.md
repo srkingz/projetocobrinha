@@ -1,8 +1,6 @@
-# Nome do Jogo
+# Cobrinha
 
 Projeto final da disciplina de Introdução a Algoritmos/Programação, desenvolvido com Python e Pygame.
-
-Este repositório é um template para os grupos da disciplina. A proposta é começar com uma base funcional e evoluir o jogo ao longo do semestre.
 
 ## Integrantes do grupo
 
@@ -11,62 +9,35 @@ Este repositório é um template para os grupos da disciplina. A proposta é com
 - Pedro Afonso Marquetotti
 - Isaque Eduardo Gonçalves de Paiva
 
-## Estrutura do projeto
-
-- `main.py`: ponto de entrada da aplicação.
-- `src/`: código-fonte principal do jogo (loop, regras, sprites e dados).
-- `assets/`: imagens, fontes e sons.
-- `data/`: arquivos persistentes (recorde/ranking).
-- `tests/`: testes unitários com `pytest`.
-- `docs/`: documentação do projeto, incluindo proposta inicial.
-
 ## Descrição do jogo
 
-Descreva brevemente a ideia principal do jogo.
-
-Exemplo:
-
-> O jogo consiste em controlar um personagem que deve coletar moedas e evitar obstáculos. O jogador ganha pontos ao coletar itens e perde vidas ao colidir com obstáculos. A partida termina quando o tempo acaba ou quando o jogador perde todas as vidas.
+O jogo consiste em controlar uma cobrinha pela tela. O jogador deve coletar comidas, fazendo a cobrinha crescer e aumentando a pontuação. A partida termina com vitória ao coletar 30 comidas ou com derrota se a cobrinha bater na parede ou no próprio corpo.
 
 ## Objetivo do jogador
 
-Explique o que o jogador precisa fazer para vencer ou avançar no jogo.
-
-Exemplo:
-
-> O objetivo é coletar a maior quantidade possível de itens antes que o tempo acabe, evitando colisões com os obstáculos.
+Coletar 30 comidas sem bater nas paredes da tela e sem colidir com o próprio corpo da cobrinha.
 
 ## Regras do jogo
 
-Liste as principais regras do jogo.
-
-Exemplo:
-
-- O jogador se movimenta usando as setas do teclado.
-- Cada item coletado aumenta a pontuação.
-- Colidir com um obstáculo reduz a quantidade de vidas.
-- A partida termina quando o jogador perde todas as vidas ou quando o tempo acaba.
+- A cobrinha se movimenta continuamente.
+- O jogador muda a direção usando as setas do teclado.
+- Cada comida coletada vale 10 pontos.
+- A cobrinha cresce a cada comida coletada.
+- O jogador vence ao coletar 30 comidas.
+- O jogador perde ao bater na parede ou no próprio corpo.
+- O recorde é salvo em `data/recorde.txt`.
 
 ## Controles
-
-Informe as teclas ou comandos utilizados no jogo.
-
-Exemplo:
 
 - Seta para cima: mover para cima
 - Seta para baixo: mover para baixo
 - Seta para esquerda: mover para esquerda
 - Seta para direita: mover para direita
-- Espaço: realizar ação
 - ESC: sair do jogo
 
 ## Como executar o projeto
 
-### 1. Clonar o repositório
-
 ```bash
-git clone LINK_DO_REPOSITORIO
-cd NOME_DA_PASTA
 pip install -r requirements.txt
 python main.py
 ```
@@ -76,16 +47,3 @@ python main.py
 ```bash
 python -m pytest
 ```
-
-## Checklist mínimo para entrega
-
-- Preencher este README com nome final, descrição real, regras e controles do jogo.
-- Atualizar `docs/proposta.MD` com a proposta do grupo.
-- Garantir que o jogo executa com `python main.py`.
-- Garantir que os testes passam com `pytest`.
-
-## Observações para os alunos
-
-- Mantenham o código organizado em módulos pequenos e com responsabilidade clara.
-- Comentem partes importantes da lógica, principalmente regras do jogo.
-- Registrem decisões técnicas no README do grupo ao longo do desenvolvimento.
