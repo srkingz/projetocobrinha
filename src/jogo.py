@@ -115,12 +115,22 @@ def desenhar_tela(
     desenhar_texto(tela, fonte, f"Recorde: {recorde}", PRETO, 10, 70)
 
     if resultado == "vitoria":
-        desenhar_texto(tela, fonte, "Vitoria! Voce comeu 30 comidas.", BRANCO, 250, 280)
+        desenhar_texto(tela, fonte, "Vitoria! Voce comeu 30 comidas.", BRANCO, 220, 260)
+        desenhar_texto(tela, fonte, "Pressione R para jogar novamente", BRANCO, 180, 300)
     elif resultado == "derrota":
-        desenhar_texto(tela, fonte, "Derrota! A cobrinha bateu.", BRANCO, 280, 280)
+        desenhar_texto(tela, fonte, "Derrota! A cobrinha bateu.", BRANCO, 240, 260)
+        desenhar_texto(tela, fonte, "Pressione R para jogar novamente", BRANCO, 180, 300)
 
     pygame.display.flip()
 
+def reiniciar_jogo():
+    cobrinha = criar_cobrinha()
+    comida = sortear_comida(cobrinha)
+    direcao = (TAMANHO_BLOCO, 0)
+    comidas_coletadas = 0
+    resultado = "jogando"
+
+    return cobrinha, comida, direcao, comidas_coletadas, resultado
 
 def executar_jogo():
     """Executa a janela e o loop principal do jogo."""
@@ -144,9 +154,18 @@ def executar_jogo():
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
+                
             elif evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_ESCAPE:
                     rodando = False
+                elif evento.key == pygame.K_r and resultado != "jogando":
+                    (
+                        cobrinha,
+                        comida,
+                        direcao,
+                        comidas_coletadas,
+                        resultado,
+                    ) = reiniciar_jogo()
                 elif resultado == "jogando":
                     nova_direcao = direcao_por_tecla(evento.key, direcao)
                     if not direcao_oposta(direcao, nova_direcao):
