@@ -27,12 +27,19 @@ Coletar 30 comidas sem bater nas paredes da tela e sem colidir com o próprio co
 - O jogador perde ao bater na parede ou no próprio corpo.
 - O recorde é salvo em `data/recorde.txt`.
 
+## Arquivos e assets
+
+- O jogo usa formas geométricas desenhadas pelo Pygame.
+- Não foram utilizados sons, fontes ou imagens externas na jogabilidade.
+- O arquivo `assets/imagens/spritesheet.bmp` faz parte do template inicial da disciplina, mas não é usado nesta versão do jogo.
+
 ## Controles
 
 - Seta para cima: mover para cima
 - Seta para baixo: mover para baixo
 - Seta para esquerda: mover para esquerda
 - Seta para direita: mover para direita
+- Enter ou Espaço: iniciar ou reiniciar a partida
 - ESC: sair do jogo
 
 ## Como executar o projeto

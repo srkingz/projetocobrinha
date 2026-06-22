@@ -1,3 +1,7 @@
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from src.dados import carregar_recorde, salvar_recorde
 from src.funcoes import (
     calcular_pontuacao,
     direcao_oposta,
@@ -73,3 +77,12 @@ def test_sem_vitoria_antes_de_30_comidas():
 
 def test_direcao_oposta():
     assert direcao_oposta((20, 0), (-20, 0)) is True
+
+
+def test_salvar_e_carregar_recorde():
+    with TemporaryDirectory() as pasta_temporaria:
+        caminho = Path(pasta_temporaria) / "recorde.txt"
+
+        salvar_recorde(caminho, 120)
+
+        assert carregar_recorde(caminho) == 120

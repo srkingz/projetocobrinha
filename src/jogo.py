@@ -54,6 +54,16 @@ def sortear_comida(cobrinha):
         if comida not in cobrinha:
             return comida
 
+
+def criar_partida():
+    """Cria os dados iniciais de uma partida."""
+    cobrinha = criar_cobrinha()
+    comida = sortear_comida(cobrinha)
+    direcao = (TAMANHO_BLOCO, 0)
+    comidas_coletadas = 0
+    return cobrinha, comida, direcao, comidas_coletadas
+
+
 def direcao_por_tecla(tecla, direcao_atual):
     """Retorna a direcao escolhida pelo jogador."""
     if tecla == pygame.K_LEFT:
@@ -95,6 +105,30 @@ def desenhar_texto(tela, fonte, texto, cor, x, y):
     tela.blit(superficie, (x, y))
 
 
+def desenhar_texto_centralizado(tela, fonte, texto, cor, y):
+    """Desenha um texto centralizado horizontalmente."""
+    superficie = fonte.render(texto, True, cor)
+    retangulo = superficie.get_rect(center=(LARGURA_TELA // 2, y))
+    tela.blit(superficie, retangulo)
+
+
+def desenhar_tela_inicial(tela, fonte, fonte_grande, recorde):
+    """Desenha a tela inicial do jogo."""
+    tela.fill(PRETO)
+    desenhar_texto_centralizado(tela, fonte_grande, TITULO_JOGO, VERDE, 170)
+    desenhar_texto_centralizado(
+        tela,
+        fonte,
+        f"Colete {META_COMIDAS} comidas sem bater nas paredes ou no proprio corpo.",
+        BRANCO,
+        250,
+    )
+    desenhar_texto_centralizado(tela, fonte, f"Recorde: {recorde}", BRANCO, 295)
+    desenhar_texto_centralizado(tela, fonte, "Pressione Enter ou Espaco para iniciar", BRANCO, 365)
+    desenhar_texto_centralizado(tela, fonte, "Use as setas para controlar a cobrinha", BRANCO, 405)
+    pygame.display.flip()
+
+
 def desenhar_tela(
     tela,
     fonte,
@@ -115,10 +149,23 @@ def desenhar_tela(
     desenhar_texto(tela, fonte, f"Recorde: {recorde}", PRETO, 10, 70)
 
     if resultado == "vitoria":
-        desenhar_texto(tela, fonte, "Vitoria! Voce comeu 30 comidas.", BRANCO, 250, 280)
+        desenhar_texto(tela, fonte, f"Vitoria! Voce comeu {META_COMIDAS} comidas.", BRANCO, 250, 280)
     elif resultado == "derrota":
         desenhar_texto(tela, fonte, "Derrota! A cobrinha bateu.", BRANCO, 280, 280)
 
+    pygame.display.flip()
+
+
+def desenhar_tela_derrota(tela, fonte, fonte_grande, comidas_coletadas, pontuacao, recorde):
+    """Desenha a tela de derrota."""
+    tela.fill(PRETO)
+    desenhar_texto_centralizado(tela, fonte_grande, "Derrota", VERMELHO, 170)
+    desenhar_texto_centralizado(tela, fonte, "A cobrinha bateu na parede ou no proprio corpo.", BRANCO, 245)
+    desenhar_texto_centralizado(tela, fonte, f"Comidas coletadas: {comidas_coletadas}", BRANCO, 295)
+    desenhar_texto_centralizado(tela, fonte, f"Pontuacao: {pontuacao}", BRANCO, 335)
+    desenhar_texto_centralizado(tela, fonte, f"Recorde: {recorde}", BRANCO, 375)
+    desenhar_texto_centralizado(tela, fonte, "Enter ou Espaco para jogar novamente", BRANCO, 445)
+    desenhar_texto_centralizado(tela, fonte, "ESC para sair", BRANCO, 485)
     pygame.display.flip()
 
 
@@ -129,13 +176,11 @@ def executar_jogo():
     pygame.display.set_caption(TITULO_JOGO)
 
     fonte = pygame.font.SysFont("arial", 24)
+    fonte_grande = pygame.font.SysFont("arial", 58)
     relogio = pygame.time.Clock()
-    cobrinha = criar_cobrinha()
-    comida = sortear_comida(cobrinha)
-    direcao = (TAMANHO_BLOCO, 0)
-    comidas_coletadas = 0
+    cobrinha, comida, direcao, comidas_coletadas = criar_partida()
     recorde = carregar_recorde(CAMINHO_RECORDE)
-    resultado = "jogando"
+    resultado = "inicio"
     rodando = True
 
     while rodando:
@@ -147,6 +192,9 @@ def executar_jogo():
             elif evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_ESCAPE:
                     rodando = False
+                elif resultado in ("inicio", "vitoria", "derrota") and evento.key in (pygame.K_RETURN, pygame.K_SPACE):
+                    cobrinha, comida, direcao, comidas_coletadas = criar_partida()
+                    resultado = "jogando"
                 elif resultado == "jogando":
                     nova_direcao = direcao_por_tecla(evento.key, direcao)
                     if not direcao_oposta(direcao, nova_direcao):
@@ -173,15 +221,21 @@ def executar_jogo():
                 resultado = "vitoria"
 
         pontuacao = calcular_pontuacao(comidas_coletadas, PONTOS_POR_COMIDA)
-        desenhar_tela(
-            tela,
-            fonte,
-            cobrinha,
-            comida,
-            comidas_coletadas,
-            pontuacao,
-            recorde,
-            resultado,
-        )
+
+        if resultado == "inicio":
+            desenhar_tela_inicial(tela, fonte, fonte_grande, recorde)
+        elif resultado == "derrota":
+            desenhar_tela_derrota(tela, fonte, fonte_grande, comidas_coletadas, pontuacao, recorde)
+        else:
+            desenhar_tela(
+                tela,
+                fonte,
+                cobrinha,
+                comida,
+                comidas_coletadas,
+                pontuacao,
+                recorde,
+                resultado,
+            )
 
     pygame.quit()

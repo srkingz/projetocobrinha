@@ -10,10 +10,10 @@ Cobrinha
 
 ## 2. Integrantes do grupo
 
-- Nome 1: A preencher
-- Nome 2: A preencher
-- Nome 3: A preencher
-- Nome 4: A preencher
+- Nome 1: Gabriel Henrique de Souza Rodrigues
+- Nome 2: Gabriel Mota Valério
+- Nome 3: Pedro Afonso Marquetotti
+- Nome 4: Isaque Eduardo Gonçalves de Paiva
 
 ## 3. Tipo de jogo
 
@@ -47,7 +47,7 @@ Regras do grupo:
 
 Condição de vitória:
 
-> O jogador vence ao alcançar 200 pontos.
+> O jogador vence ao coletar 30 comidas.
 
 ## 8. Condição de derrota ou encerramento
 
@@ -86,7 +86,7 @@ Descrição:
 Controles do grupo:
 
 - Tecla/comando: Setas do teclado para controlar a direção da cobrinha.
-- Tecla/comando: Espaço para iniciar ou reiniciar a partida.
+- Tecla/comando: Enter ou Espaço para iniciar ou reiniciar a partida.
 - Tecla/comando: ESC para sair do jogo.
 
 ## 11. Organização inicial do código
