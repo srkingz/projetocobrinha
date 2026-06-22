@@ -119,6 +119,6 @@ Escopo mínimo:
 
 Melhorias possíveis:
 
-- Melhoria 1: Criar uma tela inicial.
-- Melhoria 2: Salvar o recorde do jogador em arquivo.
+- Melhoria 1: Adicionar sons.
+- Melhoria 2: Criar menu de pausa.
 - Melhoria 3: Aumentar a velocidade da cobrinha conforme a pontuação.
