@@ -149,8 +149,8 @@ def desenhar_tela(
     desenhar_texto(tela, fonte, f"Recorde: {recorde}", PRETO, 10, 70)
 
     if resultado == "vitoria":
-        desenhar_texto(tela, fonte, f"Vitoria! Voce comeu {META_COMIDAS} comidas.", BRANCO, 250, 280)
-        desenhar_texto(tela, fonte, "Enter ou Espaco para jogar novamente", BRANCO, 180, 300)
+        desenhar_texto(tela, fonte, f"Vitoria! Voce comeu {META_COMIDAS} comidas.", PRETO, 250, 280)
+        desenhar_texto(tela, fonte, "Enter ou Espaco para jogar novamente", PRETO, 180, 300)
     elif resultado == "derrota":
         desenhar_texto(tela, fonte, "Derrota! A cobrinha bateu.", BRANCO, 240, 260)
         desenhar_texto(tela, fonte, "Enter ou Espaco para jogar novamente", BRANCO, 180, 300)
